@@ -41,7 +41,7 @@ app.use(express_useragent_1.default.express());
 // cors
 app.use((0, cors_1.default)(cors_config_1.default));
 // file logger
-app.use(logger_1.default.logger);
+// app.use(logger.logger)
 // terminal logger
 app.use((req, res, next) => {
     logger_1.default.info(env_1.default._NAMESPACE, `METHOD - [${req.method}], URL - [${req.url}], IP - [${req.socket.remoteAddress}]`);
@@ -74,6 +74,6 @@ app.listen(env_1.default._port, () => {
 setInterval(() => {
     const { rss, heapTotal } = process.memoryUsage();
     const report = `${rss / 1000000} + 'MB',${heapTotal / 1000000} + 'MB'`;
-    logger_1.default.logEvents(report, 'Memory.csv');
+    // logger.logEvents(report, 'Memory.csv')
     console.log('RSS(RAM consuption):', (rss / 1000000) + 'MB', 'heapTotal(Memory consume): ', (heapTotal / 1000000) + 'MB');
 }, 100000);
