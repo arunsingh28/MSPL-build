@@ -21,6 +21,9 @@ const auth_middleware_1 = __importDefault(require("./middlewares/auth.middleware
 const cors_config_1 = __importDefault(require("../config/cors.config"));
 const credentials_1 = __importDefault(require("./Utils/credentials"));
 const session_1 = __importDefault(require("./Utils/session"));
+const compression_1 = __importDefault(require("compression"));
+const mobileAuth_middleware_1 = __importDefault(require("./middlewares/mobileAuth.middleware"));
+const mobile_Router_1 = __importDefault(require("./Routers/mobile.Router"));
 const app = (0, express_1.default)();
 // error handler
 (0, errorHandler_1.default)();
@@ -54,14 +57,27 @@ app.use((req, res, next) => {
 // app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
 // session
 (0, session_1.default)(app);
+// compression
+app.use((0, compression_1.default)({
+    level: 6,
+    threshold: 10 * 1000,
+    filter: (req, res) => {
+        if (req.headers['x-no-compression']) {
+            return false;
+        }
+        return compression_1.default.filter(req, res);
+    }
+}));
 // public router
 app.use('/v1/api', Public_Router_1.default);
 // priavte router with authorization middleware
-app.use('/v2/api/', auth_middleware_1.default, Private_Router_1.default);
+app.use('/v2/api', auth_middleware_1.default, Private_Router_1.default);
 // tutorial router
-app.use('/v2/tutorial', auth_middleware_1.default, Tutorial_Router_1.default);
+app.use('/v2/lms', auth_middleware_1.default, Tutorial_Router_1.default);
 // nutriotion router
 app.use('/v2/nutrition', auth_middleware_1.default, Nutrition_Router_1.default);
+// mobile apis
+app.use('/v2/mobile', mobileAuth_middleware_1.default, mobile_Router_1.default);
 // wrong url or incorrect url
 app.get('*', (req, res) => {
     return res.send(`<p style="font-family:monospace"><mark style="border-radius:4px;padding:5px 10px;margin-right:5px;">${req.protocol}://${req.rawHeaders[1]}${req.url} </mark> is not valid.</p>`);

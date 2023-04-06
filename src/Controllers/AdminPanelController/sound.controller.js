@@ -12,23 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const emp_model_1 = __importDefault(require("../Models/emp.model"));
+const emp_model_1 = __importDefault(require("../../Models/emp.model"));
 const updateSoundSetting = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { loginNotification, logoutNotification, deleteNotification } = req.body;
     const { _id } = req.params;
     try {
         const isUser = yield emp_model_1.default.findOne({ _id }).exec();
         if (!isUser) {
             return res.json({ success: false, message: 'User not found' });
         }
-        isUser.isMute.loginNotification = loginNotification;
-        isUser.isMute.logoutNotification = logoutNotification;
-        isUser.isMute.deleteNotification = deleteNotification;
+        isUser.isMute.loginNotification = req.body.loginNotification;
+        isUser.isMute.logoutNotification = req.body.logoutNotification;
+        isUser.isMute.deleteNotification = req.body.deleteNotification;
         yield isUser.save();
         return res.json({ success: true, message: 'Sound setting updated' });
     }
     catch (error) {
         console.log(error);
+        // return res.status(500).json({ message: 'Internal server error', success: false, statusCode: res.statusCode })
         return res.json({ success: false, message: 'Something went wrong' });
     }
 });

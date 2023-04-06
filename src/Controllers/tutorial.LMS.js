@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Tutorial_LMS_1 = require("../Models/Tutorial.LMS");
+const tutorial_lms_1 = require("../Models/tutorial.lms");
 const emp_model_1 = __importDefault(require("../Models/emp.model"));
 // get info
 const getTutorialInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -20,7 +20,7 @@ const getTutorialInfo = (req, res) => __awaiter(void 0, void 0, void 0, function
     const userId = yield ((_a = req.session.user) === null || _a === void 0 ? void 0 : _a._id);
     try {
         const info = yield emp_model_1.default.findById(userId).exec();
-        const tutorial = yield Tutorial_LMS_1.Tutorial.findOne({ intiater: userId }).exec();
+        const tutorial = yield tutorial_lms_1.Tutorial.findOne({ intiater: userId }).exec();
         return res.status(200).json({ info: info === null || info === void 0 ? void 0 : info.tutorialTimeline, tutorial, success: false });
     }
     catch (error) {
@@ -29,14 +29,13 @@ const getTutorialInfo = (req, res) => __awaiter(void 0, void 0, void 0, function
 });
 const initTutorial = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
-    const { name, description } = req.body;
     const userId = yield ((_b = req.session.user) === null || _b === void 0 ? void 0 : _b._id);
     // console.log(req.user)
-    if (!name || !description) {
+    if (!req.body.name || !req.body.description) {
         return res.status(400).json({ message: 'All fields are required', success: false });
     }
     try {
-        const isExits = yield Tutorial_LMS_1.Tutorial.findOne({ TutorialTitle: name });
+        const isExits = yield tutorial_lms_1.Tutorial.findOne({ TutorialTitle: req.body.name });
         if (isExits) {
             return res.status(400).json({ message: 'Tutorial already exists', success: false });
         }
@@ -47,10 +46,10 @@ const initTutorial = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             emp.tutorialTimeline.createModule = true;
             yield emp.save();
         }
-        const tutorial = new Tutorial_LMS_1.Tutorial({
-            TutorialTitle: name,
+        const tutorial = new tutorial_lms_1.Tutorial({
+            TutorialTitle: req.body.name,
             intiater: userId,
-            TutorialDescription: description
+            TutorialDescription: req.body.description
         });
         yield tutorial.save();
         return res.status(201).json({ message: 'Tutorial Initiate Successfully', success: true });
@@ -61,13 +60,12 @@ const initTutorial = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 const initModule = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
-    const { modules, name } = req.body;
     const userId = yield ((_c = req.session.user) === null || _c === void 0 ? void 0 : _c._id);
-    if (!modules || !name) {
+    if (!req.body.modules || !req.body.name) {
         return res.status(400).json({ message: 'All fields are required', success: false });
     }
     try {
-        const tutorial = yield Tutorial_LMS_1.Tutorial.findOne({ TutorialTitle: name });
+        const tutorial = yield tutorial_lms_1.Tutorial.findOne({ TutorialTitle: req.body.name });
         const emp = yield emp_model_1.default.findById(userId).exec();
         if (emp) {
             emp.tutorialTimeline.createModule = false;
@@ -77,9 +75,9 @@ const initModule = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (!tutorial) {
             return res.status(404).json({ message: 'Tutorial not found', success: false });
         }
-        tutorial.moduleNumber = modules;
+        tutorial.moduleNumber = req.body.modules;
         yield tutorial.save();
-        return res.status(201).json({ message: modules + ' Module Initiate Successfully', success: true });
+        return res.status(201).json({ message: req.body.modules + ' Module Initiate Successfully', success: true });
     }
     catch (error) {
         return res.status(500).json({ message: error.message, success: false });
@@ -87,13 +85,12 @@ const initModule = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 const initModuleName = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _d;
-    const { name, moduleName, moduleDescription } = req.body;
     const userId = yield ((_d = req.session.user) === null || _d === void 0 ? void 0 : _d._id);
-    if (!name || !moduleName || !moduleDescription) {
+    if (!req.body.name || !req.body.moduleName || !req.body.moduleDescription) {
         return res.status(400).json({ message: 'All fields are required', success: false });
     }
     try {
-        const tutorial = yield Tutorial_LMS_1.Tutorial.findOne({ TutorialTitle: name });
+        const tutorial = yield tutorial_lms_1.Tutorial.findOne({ TutorialTitle: req.body.name });
         const emp = yield emp_model_1.default.findById(userId).exec();
         if (emp) {
             emp.tutorialTimeline.nameModule = false;
@@ -104,10 +101,10 @@ const initModuleName = (req, res) => __awaiter(void 0, void 0, void 0, function*
             return res.status(404).json({ message: 'Tutorial not found', success: false });
         }
         const intoDB = new Promise((resolve, reject) => {
-            Object.keys(moduleName).map((name) => {
+            Object.keys(req.body.moduleName).map((name) => {
                 reject(tutorial.module.push({
-                    moduleTitle: moduleName[name],
-                    moduleDescription: moduleDescription[name]
+                    moduleTitle: req.body.moduleName[name],
+                    moduleDescription: req.body.moduleDescription[name]
                 }));
             });
             resolve(tutorial.save());

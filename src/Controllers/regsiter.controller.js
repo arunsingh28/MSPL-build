@@ -34,6 +34,25 @@ exports.generatePassword = generatePassword;
 // auto generate id and password
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
+    const Roles = {
+        'tl': [92, 91, 921, 922, 923, 924, 925, 926],
+        'admin': [999, 91, 92, 921, 922, 923, 924, 925, 926, 93, 931, 932, 94, 941, 71, 942, 98, 981, 982, 983, 90, 901],
+        'superAdmin': [999, 91, 92, 921, 922, 923, 924, 925, 926, 93, 931, 932, 94, 941, 71, 942, 95, 951, 952, 96, 97, 971, 972, 98, 981, 982, 983, 90, 901, 81, 811, 812, 813, 814, 815]
+    };
+    const permission = [
+        {
+            "role": "tl",
+            "permision": Roles.tl
+        },
+        {
+            "role": "superAdmin",
+            "permision": Roles.superAdmin
+        }
+    ];
+    const desireRole = (role) => {
+        const roleIndex = permission.findIndex((item) => item.role === role);
+        return permission[roleIndex].permision;
+    };
     const { email, phone, name, id, role } = req.body;
     // data check if not null
     // if (!firstName || !lastName || !email || !password || !phone || !dob || !gender || !state || !city) {
@@ -53,9 +72,13 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             const referral_code = Math.random().toString(36).substr(5);
             const encrypt = yield bcrypt_1.default.hash(password, bcrypt_1.default.genSaltSync(10));
             const newUser = new emp_model_1.default({
-                // firstName, lastName, email, phone, dob, gender, password,
-                // address: { city, state, street },
-                name, email, phone, password: encrypt, role, empId: id, referral_code
+                name,
+                email,
+                phone,
+                password: encrypt,
+                role: desireRole(role),
+                empId: id,
+                referral_code
             });
             // save to db
             yield newUser.save();

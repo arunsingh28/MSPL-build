@@ -13,35 +13,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_model_1 = __importDefault(require("../../Models/user.model"));
-// send the user profile
-const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield user_model_1.default.findById(req.params.id).exec();
+        const user = yield user_model_1.default.findById(req.params.id);
         if (user) {
-            if (user.profileTimeline === 'init') {
-                return res.status(200).json({
-                    success: true,
-                    data: user,
-                    statusCode: res.statusCode,
-                });
-            }
+            user.measurement = {
+                height: req.body.height,
+                weight: req.body.weight,
+            };
+            user.academy = req.body.academy;
+            user.language = req.body.language;
+            user.email = req.body.email;
+            const updatedUser = yield user.save();
+            res.status(200).json({ success: true, data: updatedUser });
         }
         else {
-            return res.status(404).json({
-                message: "User not found",
-                success: false,
-                data: null,
-                statusCode: res.statusCode,
-            });
+            res.status(404).json({ success: false, message: "User not found" });
         }
     }
-    catch (error) {
-        return res.status(500).json({
-            message: "Internal Server Error",
-            error: error.message,
-            success: false,
-            statusCode: res.statusCode,
-        });
+    catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
 });
-exports.default = { profile };
+exports.default = { updateUserProfile };

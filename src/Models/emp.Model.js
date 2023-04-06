@@ -14,6 +14,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const empSchema = new mongoose_1.default.Schema({
+    profile: {
+        profileImage: {
+            location: String,
+            key: String
+        },
+        bio: String,
+        experience: Number,
+        language: [],
+        specialisation: [],
+        education: String,
+    },
     email: {
         type: String,
         required: [true, 'this field required'],
@@ -29,6 +40,13 @@ const empSchema = new mongoose_1.default.Schema({
         //     message: (props: any) => `${props.value} is not valid email`
         // }                        
     },
+    myClient: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'User',
+            unique: true
+        }
+    ],
     empId: {
         type: String,
         required: true,
@@ -67,19 +85,7 @@ const empSchema = new mongoose_1.default.Schema({
     phone: {
         type: Number,
         required: true,
-        // validate: {
-        //     validator: (val: number) => {
-        //         let condition = (val == 1111111111 || 2222222222 || 333333333 || 444444444) ? false : true
-        //         return condition
-        //     },
-        //     message: (props: any) => `${props.value} is not valid number`
-        // },
-        // set: setCountryCode
     },
-    // dob: {
-    //     type: String,
-    //     required: true,
-    // },
     referral_code: {
         type: String,
     },
@@ -105,13 +111,15 @@ const empSchema = new mongoose_1.default.Schema({
         type: Date,
         default: Date.now()
     },
+    lastLogin: {
+        type: Date,
+    },
     status: {
         type: Boolean,
         default: true
     },
-    profile_image: {
-        location: String,
-        key: String,
+    refreshToken: {
+        type: String,
     },
     tutorialTimeline: {
         initTutorial: {
@@ -135,10 +143,6 @@ const empSchema = new mongoose_1.default.Schema({
             default: false
         },
     },
-    // gender:{
-    //     type: String,
-    //     default: 'Male'
-    // },
     role: [],
 }, {
     timestamps: true

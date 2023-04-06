@@ -18,8 +18,8 @@ const logedin_model_1 = __importDefault(require("../Models/logedin.model"));
 const env_1 = __importDefault(require("../../config/env"));
 const authorization = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let token;
-    if (req.cookies.rf_session) {
-        token = req.cookies.rf_session;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
     }
     // token not found in header
     if (!token) {
@@ -29,7 +29,7 @@ const authorization = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         });
     }
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, env_1.default._jwt_refresh_token_secret_key);
+        const decoded = jsonwebtoken_1.default.verify(token, env_1.default._jwt_access_token_secret_key);
         const isAuth = yield logedin_model_1.default.findOne({ user: decoded.id }).exec();
         if (isAuth) {
             if (isAuth.isLoggedin === false) {
@@ -56,6 +56,7 @@ const authorization = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         }
     }
     catch (error) {
+        console.log(error);
         return res.status(401).json({
             success: false,
             message: "Unauthorized",

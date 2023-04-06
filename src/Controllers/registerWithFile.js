@@ -13,10 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const xlsx_1 = __importDefault(require("xlsx"));
-const fs_1 = __importDefault(require("fs"));
 const school_model_1 = __importDefault(require("../Models/school.model"));
 const emp_model_1 = __importDefault(require("../Models/emp.model"));
 const regsiter_controller_1 = require("./regsiter.controller");
+const role_1 = __importDefault(require("../../config/role"));
+const removeFile_1 = __importDefault(require("../Utils/removeFile"));
 const registerSchoolWithFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -73,17 +74,30 @@ const registerSchoolWithFile = (req, res) => __awaiter(void 0, void 0, void 0, f
                 }
             }));
             // delete the file after saving it into db
-            const path = (_a = req === null || req === void 0 ? void 0 : req.file) === null || _a === void 0 ? void 0 : _a.path;
-            fs_1.default.unlinkSync(path);
+            (0, removeFile_1.default)((_a = req === null || req === void 0 ? void 0 : req.file) === null || _a === void 0 ? void 0 : _a.path);
         }
     }
     catch (error) {
-        console.log('error', error);
         res.status(500).json({ message: error.message, success: false });
     }
 });
+// employee register with file
 const registerEmpWithFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
+    const permission = [
+        {
+            "role": "tl",
+            "permision": role_1.default.tl
+        },
+        {
+            "role": "superAdmin",
+            "permision": role_1.default.superAdmin
+        }
+    ];
+    const desireRole = (role) => {
+        const roleIndex = permission.findIndex((item) => item.role === role);
+        return permission[roleIndex].permision;
+    };
     try {
         // check if file is uploaded
         if (req.file === undefined) {
@@ -104,7 +118,7 @@ const registerEmpWithFile = (req, res) => __awaiter(void 0, void 0, void 0, func
                 }
                 try {
                     // conver the role into number
-                    const converRole = data.role.split(";").map((item) => Number(item));
+                    // const converRole = Roles.includes(data.role)
                     // generate password
                     const password = (0, regsiter_controller_1.generatePassword)();
                     const newEmp = new emp_model_1.default({
@@ -112,7 +126,7 @@ const registerEmpWithFile = (req, res) => __awaiter(void 0, void 0, void 0, func
                         name: data.name,
                         email: data.email,
                         phone: data.phone,
-                        role: converRole,
+                        role: desireRole(data.role),
                         password: password
                     });
                     // save the file into db
@@ -135,8 +149,7 @@ const registerEmpWithFile = (req, res) => __awaiter(void 0, void 0, void 0, func
                 }
             }));
             // delete the file after saving it into db
-            const path = (_b = req === null || req === void 0 ? void 0 : req.file) === null || _b === void 0 ? void 0 : _b.path;
-            fs_1.default.unlinkSync(path);
+            (0, removeFile_1.default)((_b = req === null || req === void 0 ? void 0 : req.file) === null || _b === void 0 ? void 0 : _b.path);
         }
     }
     catch (error) {

@@ -16,6 +16,14 @@ const emp_model_1 = __importDefault(require("../../Models/emp.model"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const tokens_1 = __importDefault(require("../../Utils/tokens"));
 const env_1 = __importDefault(require("../../../config/env"));
+// import LoggedInModel from '../../Models/logedin.model'
+// interface IisAlreadyLogedin {
+//     user: string
+//     token: string
+//     _id: string
+//     isLoggedin: boolean
+//     device: number
+// }
 const loginWithPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     if (!email)
@@ -33,6 +41,8 @@ const loginWithPassword = (req, res) => __awaiter(void 0, void 0, void 0, functi
         // refresh token and access token
         const refreshToken = tokens_1.default.refreshToken(user._id, user.role);
         const accessToken = tokens_1.default.accessToken(user._id, user.role);
+        // update the token and time in db
+        yield emp_model_1.default.findOneAndUpdate({ _id: user._id }, { $set: { refreshToken, lastLogin: Date.now() } }).exec();
         // save the token in db and update the token and time 
         res.cookie('rf_session', refreshToken, {
             maxAge: env_1.default._rf_cookies_max_age,
@@ -40,8 +50,11 @@ const loginWithPassword = (req, res) => __awaiter(void 0, void 0, void 0, functi
             httpOnly: true,
             sameSite: 'none',
         });
+        // const isSend = await sendEmail('app@sportylife.in', 'You have successfully login in your account')
+        // console.log('isSend',isSend)
         return res.status(200).json({
-            success: true, message: 'login successfully', accessToken,
+            success: true, message: 'login successfully',
+            accessToken,
             data: user,
             isAuthenticated: true,
             user: {
@@ -49,7 +62,8 @@ const loginWithPassword = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 email: user.email,
                 role: user.role,
                 _id: user._id,
-                isMute: user.isMute
+                isMute: user.isMute,
+                profilePic: user.profile.profileImage.location,
             }
         });
     }

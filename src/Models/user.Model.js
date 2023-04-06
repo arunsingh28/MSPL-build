@@ -16,20 +16,32 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const userSchema = new mongoose_1.default.Schema({
     name: {
         type: String,
-        required: true,
+        // required: true,
     },
     email: {
         type: String,
-        required: true,
+        default: null
+        // required: true,
+    },
+    profileTimeline: {
+        type: String,
     },
     phone: {
         type: Number,
         required: true,
         unique: true,
     },
+    BMI: {
+        type: Number,
+        default: 0
+    },
+    BMR: {
+        type: Number,
+        default: 0
+    },
     gender: {
         type: String,
-        required: true,
+        // required: true,
     },
     profileImage: {
         location: {
@@ -41,9 +53,51 @@ const userSchema = new mongoose_1.default.Schema({
             default: null,
         },
     },
+    nutritionist: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'emp',
+        default: null
+    },
+    nutritionData: {
+        dietStatus: {
+            type: Boolean,
+            default: false
+        },
+        lastAssisted: {
+            type: Date,
+            default: null
+        },
+        nextAssisted: {
+            type: Date,
+            default: null
+        },
+        dietPlan: {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'package',
+            default: null
+        },
+        dietPlanName: {
+            type: String,
+            default: null
+        },
+        weekReport: {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'weekReport',
+            default: null
+        },
+    },
+    academy: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'Academy',
+        default: null
+    },
     language: {
         type: String,
         default: "en"
+    },
+    waterIntake: {
+        type: Number,
+        default: 0
     },
     referal_code: String,
     dob: Date,

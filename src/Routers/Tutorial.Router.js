@@ -4,10 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const tutorial_LMS_1 = __importDefault(require("../Controllers/tutorial.LMS"));
+const lms_controller_1 = __importDefault(require("../Controllers/LMS/lms.controller"));
 const router = express_1.default.Router();
-router.route('/get-info').get(tutorial_LMS_1.default.getTutorialInfo);
-router.route('/init').post(tutorial_LMS_1.default.initTutorial);
-router.route('/init-module').post(tutorial_LMS_1.default.initModule);
-router.route('/init-module-name').post(tutorial_LMS_1.default.initModuleName);
+router.route('/init-course').post(lms_controller_1.default.saveModuleName);
+router.route('/update-course/:id').put(lms_controller_1.default.updateModuleName);
+router.route('/get-all-course').get(lms_controller_1.default.getAllModules);
+router.route('/fetch-course/:id').get(lms_controller_1.default.getModuleById);
+router.route('/fetch-modules/:id').get(lms_controller_1.default.sendModules);
+router.route('/update-lesson/:id').put(lms_controller_1.default.updateLesson);
 exports.default = router;

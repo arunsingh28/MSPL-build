@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const regsiter_controller_1 = __importDefault(require("../Controllers/regsiter.controller"));
-const login_controller_1 = __importDefault(require("../Controllers/login.controller"));
 const loginWithPassword_1 = __importDefault(require("../Controllers/AdminPanelController/loginWithPassword"));
-const endUser_controller_1 = __importDefault(require("../Controllers/endUserController/endUser.controller"));
 const refreshToken_controller_1 = __importDefault(require("../Controllers/refreshToken.controller"));
+const logout_1 = __importDefault(require("../Controllers/logout"));
 const login_1 = __importDefault(require("../Controllers/endUserController/login"));
+const nutrisist_controller_1 = __importDefault(require("../Controllers/AdminPanelController/nutrisist.controller"));
 /**
  * register api
  * @swagger
@@ -30,6 +30,7 @@ const login_1 = __importDefault(require("../Controllers/endUserController/login"
 router.route('/register')
     .get((req, res) => { return res.json({ message: 'GET METHOD NOT ALLOWED' }); })
     .post(regsiter_controller_1.default);
+router.route('/logout').get(logout_1.default);
 /**
  * login api
  * @swagger
@@ -69,18 +70,15 @@ router.route('/register')
  *        access token:
  *           description: access token (valid for 10-20 min. After that it will expire)
  */
-router.route('/login-with-otp')
-    .get((req, res) => { return res.json({ message: 'GET METHOD NOT ALLOWED' }); })
-    .post(login_controller_1.default.sendOtp)
-    .put(login_controller_1.default.verifyOtp);
 // login with password
 router.route('/login')
     .get((req, res) => { return res.json({ message: 'GET METHOD NOT ALLOWED' }); })
     .post(loginWithPassword_1.default.loginWithPassword);
 router.route('/refresh-token').get(refreshToken_controller_1.default);
 // end user apis
-router.route('/create-end-user').post(endUser_controller_1.default.regsiterEndUser);
+// router.route('/create-end-user').post(endUserController.regsiterEndUser)
 // send the otp
 router.route('/send-otp').post(login_1.default.loginWithPhone);
 router.route('/verify-otp').post(login_1.default.verifyOTP);
+router.route('/diet-plan/:id').post(nutrisist_controller_1.default.dietPlanner);
 exports.default = router;

@@ -14,20 +14,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ingridienents_model_1 = require("../../Models/ingridienents.model");
 const recipiCategory_model_1 = __importDefault(require("../../Models/recipiCategory.model"));
-const DietFrequency_model_1 = __importDefault(require("../../Models/DietFrequency.model"));
+const dietFrequency_model_1 = __importDefault(require("../../Models/dietFrequency.model"));
 const xlsx_1 = __importDefault(require("xlsx"));
-const fs_1 = __importDefault(require("fs"));
+const removeFile_1 = __importDefault(require("../../Utils/removeFile"));
 const addIngridientWithFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     // save the ingridient to the database from file
-    var _a;
     if (((_a = req.file) === null || _a === void 0 ? void 0 : _a.originalname.split('.').pop()) !== 'xlsx') {
+        (0, removeFile_1.default)((_b = req.file) === null || _b === void 0 ? void 0 : _b.path);
         // remove the file from server
-        fs_1.default.unlinkSync(req.file.path);
         return res.status(400).json({ message: 'Please select file with xlsx format' });
     }
     if (req.file === undefined) {
         // remove the file from server
-        fs_1.default.unlinkSync(req.file.path);
+        (0, removeFile_1.default)(req.file.path);
         return res.status(400).json({ message: 'Please select file' });
     }
     try {
@@ -35,7 +35,7 @@ const addIngridientWithFile = (req, res) => __awaiter(void 0, void 0, void 0, fu
         const sheet_name_list = workbook.SheetNames;
         const xlData = xlsx_1.default.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
         if (xlData[0].name === undefined || xlData[0].unit === undefined || xlData[0].quantity === undefined || xlData[0].calories === undefined || xlData[0].protien === undefined || xlData[0].fat === undefined || xlData[0].carb === undefined) {
-            fs_1.default.unlinkSync(req.file.path);
+            (0, removeFile_1.default)(req.file.path);
             return res.status(400).json({ message: 'Require filed are missing use downloaded template', success: false });
         }
         let i = 0;
@@ -53,13 +53,14 @@ const addIngridientWithFile = (req, res) => __awaiter(void 0, void 0, void 0, fu
             });
             i++;
         }
-        fs_1.default.unlinkSync(req.file.path);
+        (0, removeFile_1.default)(req.file.path);
         return res.status(200).json({ message: count + ' records are inserted', success: true });
     }
     catch (error) {
+        console.log(error);
         // remove file from server
-        fs_1.default.unlinkSync(req.file.path);
-        return res.status(500).json({ message: 'Internal server error', success: false });
+        (0, removeFile_1.default)(req.file.path);
+        return res.status(500).json({ message: error.message, success: false });
     }
 });
 const addIngridient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -145,7 +146,7 @@ const updateRecipeCategory = (req, res) => __awaiter(void 0, void 0, void 0, fun
 const addDietFrequency = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // save the ingridient to the database
     try {
-        yield DietFrequency_model_1.default.create({
+        yield dietFrequency_model_1.default.create({
             name: req.body.name,
         });
         return res.status(200).json({ message: req.body.name + ' is added', success: true });
@@ -161,7 +162,7 @@ const addDietFrequency = (req, res) => __awaiter(void 0, void 0, void 0, functio
 const sendDietFrequency = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // save the ingridient to the database
     try {
-        const data = yield DietFrequency_model_1.default.find({});
+        const data = yield dietFrequency_model_1.default.find({});
         return res.status(200).json({ data, success: true });
     }
     catch (error) {
@@ -172,7 +173,7 @@ const sendDietFrequency = (req, res) => __awaiter(void 0, void 0, void 0, functi
 // delte the diet frequency
 const deleteDietFrequency = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield DietFrequency_model_1.default.deleteOne({ _id: req.params.id });
+        yield dietFrequency_model_1.default.deleteOne({ _id: req.params.id });
         return res.status(200).json({ success: true, message: 'Delete successfully' });
     }
     catch (error) {
@@ -183,8 +184,8 @@ const deleteDietFrequency = (req, res) => __awaiter(void 0, void 0, void 0, func
 // update the diet frequency
 const updateDietFrequency = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield DietFrequency_model_1.default.updateOne({ _id: req.params.id }, { $set: { name: req.body.name } });
-        const data = yield DietFrequency_model_1.default.find({});
+        yield dietFrequency_model_1.default.updateOne({ _id: req.params.id }, { $set: { name: req.body.name } });
+        const data = yield dietFrequency_model_1.default.find({});
         return res.status(200).json({ success: true, data, message: 'Update successfully' });
     }
     catch (error) {
@@ -194,8 +195,19 @@ const updateDietFrequency = (req, res) => __awaiter(void 0, void 0, void 0, func
         return res.status(500).json({ message: 'Internal server error', success: false });
     }
 });
+const deleteIngridients = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const isDelete = yield ingridienents_model_1.ingridienentsModel.findOneAndDelete({ _id: req.params.id }).exec();
+        if (isDelete) {
+            return res.status(200).json({ success: true, message: 'Delete successfully' });
+        }
+    }
+    catch (err) {
+        return res.status(500).json({ message: 'Internal server error', error: err.message, success: false });
+    }
+});
 exports.default = {
-    addIngridientWithFile, addIngridient,
+    addIngridientWithFile, addIngridient, deleteIngridients,
     recipieCategory, sendrecipieCategory, sendIngridients,
     deleteRecipeCategory, updateRecipeCategory, updateDietFrequency,
     addDietFrequency, sendDietFrequency, deleteDietFrequency
