@@ -6,12 +6,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_session_1 = __importDefault(require("express-session"));
 function default_1(app) {
     app.use((0, express_session_1.default)({
-        name: 'connection_id',
+        name: 'sessionInfo',
         secret: 'connectionid',
         proxy: true,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: true, maxAge: 24 * 60 * 60 * 1000 }
+        cookie: {
+            // sameSite: 'none',
+            // domain: '.google.com',
+            maxAge: 24 * 60 * 60 * 1000
+        }
     }));
     app.set('trust proxy', 1);
 }

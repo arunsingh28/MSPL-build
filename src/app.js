@@ -73,7 +73,7 @@ app.use('/v1/api', Public_Router_1.default);
 // priavte router with authorization middleware
 app.use('/v2/api', auth_middleware_1.default, Private_Router_1.default);
 // tutorial router
-app.use('/v2/lms', auth_middleware_1.default, Tutorial_Router_1.default);
+app.use('/v2/tutorial', auth_middleware_1.default, Tutorial_Router_1.default);
 // nutriotion router
 app.use('/v2/nutrition', auth_middleware_1.default, Nutrition_Router_1.default);
 // mobile apis

@@ -19,7 +19,6 @@ const saveSportsList = (req, res) => __awaiter(void 0, void 0, void 0, function*
     var _a;
     try {
         const upload = yield (0, aws_s3_1.uploadFile)(req.file);
-        (0, removeFile_1.default)((_a = req.file) === null || _a === void 0 ? void 0 : _a.path);
         if (upload) {
             req.body.image = upload.location;
             req.body.key = upload.key;
@@ -35,6 +34,7 @@ const saveSportsList = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 key: req.body.key
             }
         });
+        (0, removeFile_1.default)((_a = req.file) === null || _a === void 0 ? void 0 : _a.path);
         res.status(200).json({ sportsList, success: true, statusCode: res.statusCode });
     }
     catch (error) {

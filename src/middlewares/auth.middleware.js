@@ -51,7 +51,6 @@ const authorization = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             /*
              create new session with current user
             */
-            req.session.user = user;
             next();
         }
     }
